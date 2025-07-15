@@ -1,0 +1,161 @@
+mandatory: True
+code: |
+  user_need = 'answer custody'
+  responding_child_custody_action_plan_intro
+  other_party_in_case = 'the other parent'
+  if type_of_response['case in 2 states']:
+    if stage_of_other_case == 'still going':
+      jurisdiction
+  if type_of_response['wrong state']:
+    jurisdiction
+  if type_of_response.any_true('improper service', 'default'):
+    proper_service
+  get_steps
+---
+comment: |
+continue button field: responding_child_custody_action_plan_intro
+question: |
+  Responding in your child custody case
+subquestion: |
+  This Guided Assistant asks you questions and uses your answers to build a Personal Action Plan - a list of steps to help you respond in your child custody case. Your Action Plan will include information about the Alaska court process and other resources.
+  
+  What information do you need?
+fields: 
+  - no label: type_of_response
+    datatype: checkboxes
+    choices:
+      - "The other parent started a custody case and I want to respond.": ak custody case
+      - "The other parent started a custody case, but did not give me the filed documents in the correct way.": improper service
+        help: |
+          The other parent is supposed to give you a copy by process server, or send it by certified mail/restricted delivery/return receipt. 
+      - "The other parent started a custody case in Alaska, but I think the case should be in a different state.": wrong state
+      - "2 custody cases were filed – Alaska and another state.": case in 2 states
+      - "The other parent started a custody case against me, I did not respond, and I got papers about a 'default judgment.'": default
+    none of the above: |
+      The other parent has not started a custody case yet, but wants to see if we can agree on a parenting plan and custody order.
+---
+id: Cases in 2 states - still going?
+question: |
+  Is the case in the other state still going on?
+fields:
+  - no label: stage_of_other_case
+    input type: radio
+    choices:
+      - Yes.: still going
+      - No, it is over and the court in that case issued a custody order.: ended with order
+      - No, the case was closed before it was finished and the court did not issue a custody order: ended with no order
+---
+id: Have children lived in AK long enough
+css class: after
+question: |
+  Have your children lived in Alaska for at least the last 6 months?
+fields: 
+  - no label: jurisdiction
+    datatype: yesnoradio
+    css class: no-required-asterisk
+under: |
+  #### <i class="fa-regular fa-lightbulb"></i> Learn more ####
+  Why does it matter where our children live?
+  
+  The court may not have the authority to make decisions in your case if your children have not lived in Alaska long enough.   
+---
+id: Proper service
+question: |
+  Did ${ other_party_in_case } send you the documents to start the case one of these ways?
+subquestion: |
+  (1) A process server delivered the court papers to you or a responsible person at your home or work. Or 
+  (2) You got the court papers by certified mail, restricted delivery, return receipt and you had to sign your name to get the papers. 
+
+yesno: proper_service
+under: |
+  % if type_of_response['default']:
+  #### <i class="fa-regular fa-lightbulb"></i> Learn more
+  Before the court can enter a default judgment, ${ other_party_in_case } is supposed to give you copies of the court papers by process server or certified mail, restricted delivery, return receipt.  If ${ other_party_in_case } did not, you may be able to challenge the default.
+  % endif
+---
+id: final screen
+event: get_steps
+question: Final Screen
+subquestion: |  
+  % if type_of_response['case in 2 states'] and stage_of_other_case == 'ended with order':
+    % if (type_of_response['improper service'] and not proper_service and type_of_response.all_false('default')) or type_of_response['default']:
+  Your situation is complicated. You may want to [talk to a lawyer](https://courts.alaska.gov/shc/shclawyer.htm). If you do not respond to the Alaska case, the Alaska judge may enter a custody order. This could be very complicated if you already have a custody order in another state. It is best to file a Motion to Dismiss your Alaska case to tell the Alaska judge 
+      % if proper_service:
+        about the order from the other state
+      % else:
+        (1) about the order from the other state and (2) that you were not served properly
+      % endif
+      .
+    % else:
+  If the case in the other state is over and the other court issued final orders, you can file a **Motion to Dismiss** your Alaska case.
+    % endif
+  
+  File a copy of the final orders from the other state, and any other documents that support your request.
+  % endif
+
+  
+  % if (type_of_response['improper service'] and not proper_service) or type_of_response['default']:
+  If you do not have a copy of the filed documents, you can ask ${ other_party_in_case } or get a copy from your file at the courthouse. Read about [getting copies of your court file](https://courts.alaska.gov/trialcourts/index.htm#recs) on the court’s website. 
+  % endif
+
+  % if type_of_response['default']:
+    % if type_of_response['wrong state'] and not jurisdiction:
+      If the Alaska Court does not have jurisdiction
+      % if not proper_service:
+        or you were not served properly
+      % endif
+        , and you want the court to dismiss the case, you can fill out and file a “Motion to Dismiss” that tells the court why you want to dismiss the case.
+
+    Because the other parent asked for a default judgment, it is important to file your motion as soon as possible to prevent the judge entering a default judgment order.
+    % endif 
+    % if type_of_response['case in 2 states'] and stage_of_other_case == 'still going' and not jurisdiction:
+      If the other parent asked for a default judgment, the judge may decide without hearing from you if you do not respond. You could end up with 2 different custody orders from 2 different states . To prevent this, file a **Motion to Dismiss** to tell the Alaska judge (1) about the other case and (2) that your children have not lived in Alaska for the last 6 months. Tell the judge in the other state about the Alaska case.
+
+  Because the other parent asked for a default judgment, it is important to file your motion as soon as possible to prevent the judge entering a default judgment order.
+    % endif
+  % endif
+
+  <div class="step-subheading">Fill out a **Motion to Dismiss**</div>
+  Use:
+  
+  **Generic Motion, TF-706** [[Fill-in PDF](https://public.courts.alaska.gov/web/forms/docs/tf-706.pdf)]
+  Title it 
+  % if type_of_response['default'] and (type_of_response['wrong state'] or (type_of_response['case in 2 states'] and stage_of_other_case == 'still going')) and not jurisdiction:
+  “Motion to Dismiss for No Jurisdiction"
+    % if type_of_response.all_true('improper_service', 'wrong state') and not proper_service:
+   or Service”
+    % endif
+  % else:
+    "Motion to Dismiss"
+  % endif
+  .
+  
+  In the 1st section, write what you want the judge to order in your case.  For example, that you want the judge to dismiss the case.
+
+  In the 2nd section, tell the judge why you think Alaska does not have jurisdiction over your children. 
+
+
+  % if type_of_response['improper service'] or (type_of_response.any_true('improper service', 'default') and not proper_service):
+  You can also tell the judge ${ other_party_in_case } did not serve you properly.
+
+  If ${ other_party_in_case } serves you properly in the future, the court may decide not to dismiss your case. 
+  % endif
+
+  Wait to sign your motion until you can sign in front of a notary or a court clerk.
+  
+  <div class="step-subheading">Learn more</div>
+
+  Watch: [Motions Part 1: How to Ask the Court For Something](https://www.youtube.com/watch?v=2irmxT0_0EA).
+
+  Read: Getting Your Message to the Judge, SHC-1380 [Word](https://courts.alaska.gov/shc/family/docs/shc-1380.doc) | [PDF](https://courts.alaska.gov/shc/family/docs/shc-1302n.pdf).
+
+  Learn about motions: See [Motions: Requesting an Order from the Court; Opposing a Motion](https://courts.alaska.gov/shc/family/motions.htm).
+
+
+  % if type_of_response['improper service'] or (type_of_response.any_true('improper service', 'default') and not proper_service):
+  If ${ other_party_in_case } serves you properly in the future, the court may decide not to dismiss your case.  
+
+    % if (type_of_response['case in 2 states'] and stage_of_other_case == 'still going'):
+    Read Steps ? to ? to learn about filing an Answer.
+    % endif
+  % endif
