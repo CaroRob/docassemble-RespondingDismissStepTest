@@ -30,7 +30,7 @@ Scenario: Row #2 – No improper service, no default (simple)
     | stage_of_other_case                  | ended with order|         |
     | type_of_response['improper service'] | False           |         |
     | type_of_response['default']          | False           |         |
-  And I should see the phrase "If the case in the other state is over and the other court issued final orders, you can file a **Motion to Dismiss** your Alaska case."
+  And I should see the phrase "If the case in the other state is over and the other court issued final orders, you can file a Motion to Dismiss your Alaska case."
   And I should see the phrase "File a copy of the final orders from the other state, and any other documents that support your request."
     And I take a screenshot
 
@@ -45,7 +45,7 @@ Scenario: Row #3 – Improper service flagged but properly served (simple)
     | type_of_response['improper service'] | True            |         |
     | proper_service                       | True            |         |
     | type_of_response['default']          | False           |         |
-  And I should see the phrase "If the case in the other state is over and the other court issued final orders, you can file a **Motion to Dismiss** your Alaska case."
+  And I should see the phrase "If the case in the other state is over and the other court issued final orders, you can file a Motion to Dismiss your Alaska case."
   And I should see the phrase "File a copy of the final orders from the other state, and any other documents that support your request."
     And I take a screenshot
 
